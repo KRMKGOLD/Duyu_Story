@@ -49,25 +49,28 @@ class AddActivity : AppCompatActivity() {
                 Toast.makeText(this, "사진이나 내용을 입력하십시오.", Toast.LENGTH_SHORT).show()
             } else {
                 addProgressBar.visibility = View.VISIBLE
+                uploadCatImage()
+            }
+        }
+    }
 
-                val randomUUDI = "${UUID.randomUUID()}"
-                val storageImageRef = storageRef.child("image/$randomUUDI")
-                // "${UUID.randomUUID()}.jpg" 은 유니크한 파일이름을 만들기 위함.
-                val catImageUploadTask = storageImageRef.putFile(imageURI)
+    private fun uploadCatImage () {
+        val randomUUDI = "${UUID.randomUUID()}"
+        val storageImageRef = storageRef.child("image/$randomUUDI")
+        // "${UUID.randomUUID()}.jpg" 은 유니크한 파일이름을 만들기 위함.
+        val catImageUploadTask = storageImageRef.putFile(imageURI)
 
-                catImageUploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
-                    if (!it.isSuccessful) {
-                        it.exception?.let { exception -> throw exception }
-                    }
-                    return@Continuation storageImageRef.downloadUrl
-                }).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        val catDataWithImageURL = Cat(it.result.toString(), titleEditText.text.toString(), contentEditText.text.toString())
-                        pushCatDataInDB(catDataWithImageURL)
-                    } else {
-                        Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
-                    }
-                }
+        catImageUploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
+            if (!it.isSuccessful) {
+                it.exception?.let { exception -> throw exception }
+            }
+            return@Continuation storageImageRef.downloadUrl
+        }).addOnCompleteListener {
+            if (it.isSuccessful) {
+                val catDataWithImageURL = Cat(it.result.toString(), titleEditText.text.toString(), contentEditText.text.toString())
+                pushCatDataInDB(catDataWithImageURL)
+            } else {
+                Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
             }
         }
     }
