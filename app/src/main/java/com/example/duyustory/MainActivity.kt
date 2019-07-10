@@ -1,13 +1,11 @@
 package com.example.duyustory
 
 import android.content.Intent
-import android.graphics.drawable.GradientDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -31,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         duyu_recycler.setHasFixedSize(true)
         duyu_recycler.adapter = mainAdapter
 
-        progressBar.visibility = View.VISIBLE
+        mainProgressBar.visibility = View.VISIBLE
 
         getDataInDB()
         // DB에서 데이터 받아오는 함수
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 catList.reverse()
 
-                progressBar.visibility = View.GONE
+                mainProgressBar.visibility = View.GONE
                 mainAdapter.notifyDataSetChanged()
             }
 
