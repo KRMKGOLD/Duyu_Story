@@ -3,6 +3,7 @@ package com.example.duyustory
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -31,24 +32,32 @@ class MainActivity : AppCompatActivity() {
 
         mainProgressBar.visibility = View.VISIBLE
 
-        getDataInDB()
         // DB에서 데이터 받아오는 함수
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getDataInDB()
     }
 
     private fun getDataInDB() {
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val tempCatList = arrayListOf<Cat>()
+
                 for (tempSnapshot in dataSnapshot.children) {
                     val catData = tempSnapshot.getValue(Cat::class.java)
-                    catList.add(catData!!)
+                    tempCatList.add(catData!!)
                 }
-                catList.reverse()
+                tempCatList.reverse()
+                catList.clear()
+                catList.addAll(tempCatList)
 
                 mainProgressBar.visibility = View.GONE
                 mainAdapter.notifyDataSetChanged()
             }
 
-            override fun onCancelled(dataSnapshot: DatabaseError) {
+            override fun onCancelled(databaseError: DatabaseError) {
                 Toast.makeText(this@MainActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
             }
         })

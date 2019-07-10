@@ -9,25 +9,34 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.Task
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.UploadTask
 import kotlinx.android.synthetic.main.activity_add.*
 import java.util.*
 
 class AddActivity : AppCompatActivity() {
 
     private val GET_GALLERY_IMAGE = 200
+
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.reference
+    private val database = FirebaseDatabase.getInstance()
+    private val usersDB = database.getReference("users")
 
     private lateinit var imageURI: Uri
+    private lateinit var catURL : Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add)
 
-        val drawable = this@AddActivity.getDrawable(R.drawable.background_rounding) as GradientDrawable
-        catImageView.background = drawable
-        catImageView.clipToOutline = true
+        doRoundImageView()
 
         catImageView.setOnClickListener {
             val galleryIntent = Intent(Intent.ACTION_PICK)
@@ -46,20 +55,41 @@ class AddActivity : AppCompatActivity() {
                 // "${UUID.randomUUID()}.jpg" 은 유니크한 파일이름을 만들기 위함.
                 val catImageUploadTask = storageImageRef.putFile(imageURI)
 
-                catImageUploadTask.addOnFailureListener {
-                    Toast.makeText(this, "업로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                    Log.d("exception", it.printStackTrace().toString())
-                    addProgressBar.visibility = View.GONE
-
-
-
-
-                }.addOnSuccessListener {
-                    Toast.makeText(this, "업로드에 성공했습니다.", Toast.LENGTH_SHORT).show()
-                    addProgressBar.visibility = View.GONE
+                catImageUploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
+                    if (!it.isSuccessful) {
+                        it.exception?.let { exception -> throw exception }
+                    }
+                    return@Continuation storageImageRef.downloadUrl
+                }).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val catDataWithImageURL = Cat(it.result.toString(), titleEditText.text.toString(), contentEditText.text.toString())
+                        pushCatDataInDB(catDataWithImageURL)
+                    } else {
+                        Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
+    }
+
+    private fun pushCatDataInDB (cat : Cat) {
+        usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(dataBaseError : DatabaseError) {
+                Toast.makeText(this@AddActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                usersDB.push().setValue(cat)
+                addProgressBar.visibility = View.GONE
+                Toast.makeText(this@AddActivity, "데이터를 저장했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun doRoundImageView() {
+        val drawable = this@AddActivity.getDrawable(R.drawable.background_rounding) as GradientDrawable
+        catImageView.background = drawable
+        catImageView.clipToOutline = true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
