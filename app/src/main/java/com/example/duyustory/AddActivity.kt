@@ -30,7 +30,6 @@ class AddActivity : AppCompatActivity() {
     private val usersDB = database.getReference("users")
 
     private lateinit var imageURI: Uri
-    private lateinit var catURL : Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +38,7 @@ class AddActivity : AppCompatActivity() {
         doRoundImageView()
 
         catImageView.setOnClickListener {
-            val galleryIntent = Intent(Intent.ACTION_PICK)
-            galleryIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-            startActivityForResult(galleryIntent, GET_GALLERY_IMAGE)
+            getImageInGallery()
         }
 
         uploadButton.setOnClickListener {
@@ -54,7 +51,25 @@ class AddActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadCatImage () {
+    private fun getImageInGallery() {
+        val galleryIntent = Intent(Intent.ACTION_PICK)
+        galleryIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+        startActivityForResult(galleryIntent, GET_GALLERY_IMAGE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
+            imageURI = data.data
+            catImageView.setImageURI(imageURI)
+
+//            val imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
+//            catImageView.setImageBitmap(imageBitmap)
+            TODO("uploadCattImage()에서 Bitmap 으로 Storage 에 Image 삽입하는 기능 추가해야 함 - 190711 23:54")
+            TODO("또한 Resize를 통해서 게시물 전체를 보는 게시판에서 사진의 빠른 로딩 기능을 추가해야 함. - 190711 23:54")
+        }
+    }
+
+    private fun uploadCatImage() {
         val randomUUDI = "${UUID.randomUUID()}"
         val storageImageRef = storageRef.child("image/$randomUUDI")
         // "${UUID.randomUUID()}.jpg" 은 유니크한 파일이름을 만들기 위함.
@@ -85,6 +100,7 @@ class AddActivity : AppCompatActivity() {
                 usersDB.push().setValue(cat)
                 addProgressBar.visibility = View.GONE
                 Toast.makeText(this@AddActivity, "데이터를 저장했습니다.", Toast.LENGTH_SHORT).show()
+                finish()
             }
         })
     }
@@ -93,12 +109,5 @@ class AddActivity : AppCompatActivity() {
         val drawable = this@AddActivity.getDrawable(R.drawable.background_rounding) as GradientDrawable
         catImageView.background = drawable
         catImageView.clipToOutline = true
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
-            imageURI = data.data
-            catImageView.setImageURI(imageURI)
-        }
     }
 }
