@@ -1,12 +1,12 @@
 package com.example.duyustory
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.android.gms.tasks.Continuation
@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import kotlinx.android.synthetic.main.activity_add.*
+import java.io.ByteArrayOutputStream
 import java.util.*
 
 class AddActivity : AppCompatActivity() {
@@ -29,7 +30,7 @@ class AddActivity : AppCompatActivity() {
     private val database = FirebaseDatabase.getInstance()
     private val usersDB = database.getReference("users")
 
-    private lateinit var imageURI: Uri
+    private lateinit var imageBitmap: Bitmap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +60,8 @@ class AddActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
-            imageURI = data.data
-            catImageView.setImageURI(imageURI)
-
-//            val imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
-//            catImageView.setImageBitmap(imageBitmap)
-            TODO("uploadCattImage()에서 Bitmap 으로 Storage 에 Image 삽입하는 기능 추가해야 함 - 190711 23:54")
-            TODO("또한 Resize를 통해서 게시물 전체를 보는 게시판에서 사진의 빠른 로딩 기능을 추가해야 함. - 190711 23:54")
+            imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
+            catImageView.setImageBitmap(imageBitmap)
         }
     }
 
@@ -73,26 +69,27 @@ class AddActivity : AppCompatActivity() {
         val randomUUDI = "${UUID.randomUUID()}"
         val storageImageRef = storageRef.child("image/$randomUUDI")
         // "${UUID.randomUUID()}.jpg" 은 유니크한 파일이름을 만들기 위함.
-        val catImageUploadTask = storageImageRef.putFile(imageURI)
 
-        catImageUploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
-            if (!it.isSuccessful) {
-                it.exception?.let { exception -> throw exception }
-            }
+        val baos = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        val catByteData = baos.toByteArray()
+        // TODO : 사진이 90도 회전해서 들어간다. 키워드 검색 및 수정 필요
+
+        storageImageRef.putBytes(catByteData).continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
+            if (!it.isSuccessful) it.exception?.let { exception -> throw exception }
             return@Continuation storageImageRef.downloadUrl
         }).addOnCompleteListener {
             if (it.isSuccessful) {
-                val catDataWithImageURL = Cat(it.result.toString(), titleEditText.text.toString(), contentEditText.text.toString())
-                pushCatDataInDB(catDataWithImageURL)
+                pushCatDataInDB(Cat(it.result.toString(), titleEditText.text.toString(), contentEditText.text.toString()))
             } else {
                 Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun pushCatDataInDB (cat : Cat) {
+    private fun pushCatDataInDB(cat: Cat) {
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(dataBaseError : DatabaseError) {
+            override fun onCancelled(dataBaseError: DatabaseError) {
                 Toast.makeText(this@AddActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
             }
 

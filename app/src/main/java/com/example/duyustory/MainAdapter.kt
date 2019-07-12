@@ -28,9 +28,7 @@ class MainAdapter(private val context: Context, private val catList: List<Cat>) 
         fun bind(catData : Cat) {
             tvTitle.text = catData.title
             tvContent.text = catData.contents
-            Glide.with(context).load(catData.image).into(imageCatPicture)
-
-            
+            Glide.with(context).load(catData.smallImage).into(imageCatPicture)
         }
     }
 }

@@ -1,3 +1,3 @@
 package com.example.duyustory
 
-data class Cat(val image : String = "", val title : String = "", val contents : String = "")
+data class Cat(var image : String = "", var title : String = "", var contents : String = "")
