@@ -31,8 +31,6 @@ class MainActivity : AppCompatActivity() {
         duyu_recycler.adapter = mainAdapter
 
         mainProgressBar.visibility = View.VISIBLE
-
-        // DB에서 데이터 받아오는 함수
     }
 
     override fun onResume() {
