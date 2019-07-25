@@ -3,6 +3,7 @@ package com.example.duyustory
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.DividerItemDecoration
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         duyu_recycler.setHasFixedSize(true)
         duyu_recycler.adapter = mainAdapter
+        duyu_recycler.addItemDecoration(DividerItemDecoration(this, 1))
 
         mainProgressBar.visibility = View.VISIBLE
     }
