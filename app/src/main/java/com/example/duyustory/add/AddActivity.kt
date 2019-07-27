@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
+import android.os.AsyncTask
 import android.provider.MediaStore
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import android.widget.Toast
 import com.google.android.gms.tasks.Continuation
@@ -23,7 +25,9 @@ import java.util.*
 import android.view.View
 import com.example.duyustory.data.Cat
 import com.example.duyustory.R
+import com.example.duyustory.main.MainActivity
 import com.example.duyustory.util.AddPictureUtil
+import java.lang.ref.WeakReference
 
 class AddActivity : AppCompatActivity() {
 
@@ -49,11 +53,25 @@ class AddActivity : AppCompatActivity() {
             if (catImageView.drawable == null || titleEditText.text.toString() == "" || contentEditText.text.toString() == "") {
                 Toast.makeText(this, "사진이나 내용을 입력하십시오.", Toast.LENGTH_SHORT).show()
             } else {
-                uploadCatImage()
-                addProgressBar.visibility = View.GONE
+                addProgressBar.visibility = View.VISIBLE
+
+                DataSaveAsyncTask().execute()
             }
         }
     }
+
+
+    inner class DataSaveAsyncTask : AsyncTask<Unit, Unit, Unit>() {
+        override fun onPreExecute() {
+            super.onPreExecute()
+            addProgressBar.visibility = View.VISIBLE
+        }
+
+        override fun doInBackground(vararg params: Unit?) {
+            uploadCatImage()
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
@@ -74,13 +92,12 @@ class AddActivity : AppCompatActivity() {
     private fun uploadCatImage() {
         val randomUUDI = "${UUID.randomUUID()}"
         val storageImageRef = storageRef.child("image/$randomUUDI")
-        // "${UUID.randomUUID()}.jpg" 은 유니크한 파일이름을 만들기 위함.
-
         val baos = ByteArrayOutputStream()
         imageBitmap?.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val catByteData = baos.toByteArray()
+        val uploadTask = storageImageRef.putBytes(catByteData)
 
-        storageImageRef.putBytes(catByteData).continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
+        uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
             if (!it.isSuccessful) it.exception?.let { exception -> throw exception }
             return@Continuation storageImageRef.downloadUrl
         }).addOnCompleteListener {
@@ -96,6 +113,7 @@ class AddActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
     private fun pushCatDataInDB(cat: Cat) {
@@ -106,8 +124,8 @@ class AddActivity : AppCompatActivity() {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 usersDB.push().setValue(cat)
-                addProgressBar.visibility = View.GONE
                 Toast.makeText(this@AddActivity, "데이터를 저장했습니다.", Toast.LENGTH_SHORT).show()
+                addProgressBar.visibility = View.GONE
                 finish()
             }
         })

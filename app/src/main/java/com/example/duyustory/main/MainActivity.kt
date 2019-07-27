@@ -33,8 +33,6 @@ class MainActivity : AppCompatActivity() {
         duyu_recycler.setHasFixedSize(true)
         duyu_recycler.adapter = mainAdapter
         duyu_recycler.addItemDecoration(DividerItemDecoration(this, 1))
-
-        mainProgressBar.visibility = View.VISIBLE
     }
 
     override fun onResume() {
@@ -45,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     private fun getDataInDB() {
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                mainProgressBar.visibility = View.VISIBLE
+
                 val tempCatList = arrayListOf<Cat>()
 
                 for (tempSnapshot in dataSnapshot.children) {
