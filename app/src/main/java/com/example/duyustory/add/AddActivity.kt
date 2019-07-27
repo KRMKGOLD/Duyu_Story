@@ -55,23 +55,33 @@ class AddActivity : AppCompatActivity() {
             } else {
                 addProgressBar.visibility = View.VISIBLE
 
-                DataSaveAsyncTask().execute()
+                DataSaveAsyncTask(this@AddActivity).execute()
             }
         }
     }
 
 
-    inner class DataSaveAsyncTask : AsyncTask<Unit, Unit, Unit>() {
+    inner class DataSaveAsyncTask(private val context : AddActivity) : AsyncTask<Unit, Unit, Unit>() {
+        private lateinit var weakReference : WeakReference<AddActivity>
+
         override fun onPreExecute() {
             super.onPreExecute()
+            weakReference = WeakReference(context)
             addProgressBar.visibility = View.VISIBLE
         }
 
         override fun doInBackground(vararg params: Unit?) {
             uploadCatImage()
         }
-    }
 
+        override fun onPostExecute(result: Unit?) {
+            super.onPostExecute(result)
+
+            if(weakReference.get() != null) {
+                weakReference.clear()
+            }
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
