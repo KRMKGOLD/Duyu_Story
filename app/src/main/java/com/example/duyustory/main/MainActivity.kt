@@ -1,14 +1,16 @@
-package com.example.duyustory
+package com.example.duyustory.main
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.DividerItemDecoration
-import android.util.Log
+import androidx.recyclerview.widget.DividerItemDecoration
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import com.example.duyustory.data.Cat
+import com.example.duyustory.R
+import com.example.duyustory.add.AddActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase

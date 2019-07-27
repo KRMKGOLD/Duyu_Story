@@ -1,9 +1,9 @@
-package com.example.duyustory
+package com.example.duyustory.picture
 
-import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.example.duyustory.R
 
 class PictureActivity : AppCompatActivity() {
 
