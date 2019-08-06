@@ -8,7 +8,6 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.AsyncTask
 import android.provider.MediaStore
-import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import android.widget.Toast
 import com.google.android.gms.tasks.Continuation
@@ -25,7 +24,6 @@ import java.util.*
 import android.view.View
 import com.example.duyustory.data.Cat
 import com.example.duyustory.R
-import com.example.duyustory.main.MainActivity
 import com.example.duyustory.util.AddPictureUtil
 import java.lang.ref.WeakReference
 
@@ -59,7 +57,6 @@ class AddActivity : AppCompatActivity() {
             }
         }
     }
-
 
     inner class DataSaveAsyncTask(private val context : AddActivity) : AsyncTask<Unit, Unit, Unit>() {
         private lateinit var weakReference : WeakReference<AddActivity>
