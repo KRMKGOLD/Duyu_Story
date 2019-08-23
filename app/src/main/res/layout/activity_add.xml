@@ -6,6 +6,15 @@
         android:layout_height="match_parent"
         tools:context=".add.AddActivity">
 
+    <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFF"
+            android:id="@+id/addToolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -17,8 +26,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <ImageView
-                    android:id="@+id/catImageView"
+            <ImageButton
+                    android:id="@+id/catImageButton"
                     android:layout_width="200dp"
                     android:layout_height="200dp"
                     android:layout_margin="5dp"
@@ -26,40 +35,18 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            <EditText
-                    android:layout_width="0dp"
+            <TextView
+                    android:text="버튼을 클릭하고 사진을 등록하세요!"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:hint="제목"
-                    android:ems="10"
-                    android:id="@+id/titleEditText" app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
-            <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:inputType="textPersonName"
-                    android:hint="내용"
-                    android:ems="10"
-                    android:id="@+id/contentEditText"
-                    app:layout_constraintBottom_toTopOf="@+id/uploadButton"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/titleEditText"/>
-            <Button
-                    android:text="데이터 추가"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content" android:id="@+id/uploadButton"
-                    app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-            />
+                    android:textColor="#000"
+                    android:textSize="18sp"
+                    android:id="@+id/textView" android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toBottomOf="@+id/catImageButton" android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintVertical_bias="0.2"
+                    android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
@@ -78,5 +65,13 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
+    <Button
+            android:text="데이터 추가"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" android:id="@+id/uploadButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp" app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

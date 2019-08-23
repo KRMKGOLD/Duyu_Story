@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.activity_add.*
 import java.io.ByteArrayOutputStream
 import java.util.*
 import android.view.View
-import com.example.duyustory.data.Cat
+import com.example.duyustory.data.CatRepo
 import com.example.duyustory.R
 import com.example.duyustory.util.AddPictureUtil
 import java.lang.ref.WeakReference
@@ -42,14 +42,15 @@ class AddActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add)
 
         doRoundImageView()
+        setSupportActionBar(addToolbar)
 
-        catImageView.setOnClickListener {
+        catImageButton.setOnClickListener {
             startActivityForResult(addPictureUtil.getImageInGallery(), GET_GALLERY_IMAGE)
         }
 
         uploadButton.setOnClickListener {
-            if (catImageView.drawable == null || titleEditText.text.toString() == "" || contentEditText.text.toString() == "") {
-                Toast.makeText(this, "사진이나 내용을 입력하십시오.", Toast.LENGTH_SHORT).show()
+            if (catImageButton.drawable == null) {
+                Toast.makeText(this, "사진을 등록하십시오.", Toast.LENGTH_SHORT).show()
             } else {
                 addProgressBar.visibility = View.VISIBLE
 
@@ -58,8 +59,8 @@ class AddActivity : AppCompatActivity() {
         }
     }
 
-    inner class DataSaveAsyncTask(private val context : AddActivity) : AsyncTask<Unit, Unit, Unit>() {
-        private lateinit var weakReference : WeakReference<AddActivity>
+    inner class DataSaveAsyncTask(private val context: AddActivity) : AsyncTask<Unit, Unit, Unit>() {
+        private lateinit var weakReference: WeakReference<AddActivity>
 
         override fun onPreExecute() {
             super.onPreExecute()
@@ -74,7 +75,7 @@ class AddActivity : AppCompatActivity() {
         override fun onPostExecute(result: Unit?) {
             super.onPostExecute(result)
 
-            if(weakReference.get() != null) {
+            if (weakReference.get() != null) {
                 weakReference.clear()
             }
         }
@@ -92,7 +93,7 @@ class AddActivity : AppCompatActivity() {
             val exifDegree = addPictureUtil.exifOrientationToDegrees(exifOrientation)
             imageBitmap = addPictureUtil.rotate(imageBitmap, exifDegree)
 
-            catImageView.setImageBitmap(imageBitmap)
+            catImageButton.setImageBitmap(imageBitmap)
         }
     }
 
@@ -110,11 +111,7 @@ class AddActivity : AppCompatActivity() {
         }).addOnCompleteListener {
             if (it.isSuccessful) {
                 pushCatDataInDB(
-                    Cat(
-                        it.result.toString(),
-                        titleEditText.text.toString(),
-                        contentEditText.text.toString()
-                    )
+                    CatRepo(it.result.toString())
                 )
             } else {
                 Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
@@ -123,7 +120,7 @@ class AddActivity : AppCompatActivity() {
 
     }
 
-    private fun pushCatDataInDB(cat: Cat) {
+    private fun pushCatDataInDB(cat: CatRepo) {
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(dataBaseError: DatabaseError) {
                 Toast.makeText(this@AddActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
@@ -140,7 +137,7 @@ class AddActivity : AppCompatActivity() {
 
     private fun doRoundImageView() {
         val drawable = this@AddActivity.getDrawable(R.drawable.background_rounding) as GradientDrawable
-        catImageView.background = drawable
-        catImageView.clipToOutline = true
+        catImageButton.background = drawable
+        catImageButton.clipToOutline = true
     }
 }

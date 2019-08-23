@@ -3,12 +3,12 @@ package com.example.duyustory.main
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.recyclerview.widget.DividerItemDecoration
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.example.duyustory.data.Cat
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.duyustory.data.CatRepo
 import com.example.duyustory.R
 import com.example.duyustory.add.AddActivity
 import com.google.firebase.database.DataSnapshot
@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainAdapter: MainAdapter
-    private var catList = arrayListOf<Cat>()
+    private var catList = arrayListOf<CatRepo>()
     private val database = FirebaseDatabase.getInstance()
     private val usersDB = database.getReference("users")
 
@@ -28,30 +28,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setSupportActionBar(mainToolbar)
+
         mainAdapter = MainAdapter(this, catList)
 
         duyu_recycler.setHasFixedSize(true)
         duyu_recycler.adapter = mainAdapter
-        duyu_recycler.addItemDecoration(DividerItemDecoration(this, 1))
+        duyu_recycler.layoutManager = GridLayoutManager(this, 4)
     }
 
     override fun onResume() {
+        mainProgressBar.visibility = View.VISIBLE
         super.onResume()
         getDataInDB()
     }
 
     private fun getDataInDB() {
+
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                mainProgressBar.visibility = View.VISIBLE
-
-                val tempCatList = arrayListOf<Cat>()
+                val tempCatList = arrayListOf<CatRepo>()
 
                 for (tempSnapshot in dataSnapshot.children) {
-                    val catData = tempSnapshot.getValue(Cat::class.java)
-                    tempCatList.add(catData!!)
+                    val catData = tempSnapshot.getValue(CatRepo::class.java)
+                    tempCatList.add(0, catData!!)
                 }
-                tempCatList.reverse()
                 catList.clear()
                 catList.addAll(tempCatList)
 

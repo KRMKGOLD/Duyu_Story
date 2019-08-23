@@ -11,10 +11,9 @@ import com.example.duyustory.R
 class PictureActivity : AppCompatActivity() {
 
     private lateinit var imageUrl: String
-    private lateinit var basicOverlay : ConstraintLayout
 
     private fun onOffFullScreen() {
-        val overlay = basicOverlay
+        val overlay = findViewById<ConstraintLayout>(R.id.pictureLayout)
         overlay.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -25,13 +24,7 @@ class PictureActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_picture)
 
-        basicOverlay = findViewById(R.id.pictureLayout)
-
         onOffFullScreen()
-
-        fullScreenImageView.setOnClickListener {
-
-        }
 
         imageUrl = intent.getStringExtra("Picture_URL")
 
