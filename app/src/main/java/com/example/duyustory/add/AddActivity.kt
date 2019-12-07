@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.activity_add.*
 import java.io.ByteArrayOutputStream
 import java.util.*
 import android.view.View
-import com.example.duyustory.data.CatRepo
+import com.example.duyustory.data.Cat
 import com.example.duyustory.R
 import com.example.duyustory.util.AddPictureUtil
 import java.lang.ref.WeakReference
@@ -59,7 +59,8 @@ class AddActivity : AppCompatActivity() {
         }
     }
 
-    inner class DataSaveAsyncTask(private val context: AddActivity) : AsyncTask<Unit, Unit, Unit>() {
+    inner class DataSaveAsyncTask(private val context: AddActivity) :
+        AsyncTask<Unit, Unit, Unit>() {
         private lateinit var weakReference: WeakReference<AddActivity>
 
         override fun onPreExecute() {
@@ -111,7 +112,7 @@ class AddActivity : AppCompatActivity() {
         }).addOnCompleteListener {
             if (it.isSuccessful) {
                 pushCatDataInDB(
-                    CatRepo(it.result.toString())
+                    Cat(it.result.toString())
                 )
             } else {
                 Toast.makeText(this, "Error, DB(1) Error", Toast.LENGTH_SHORT).show()
@@ -120,7 +121,7 @@ class AddActivity : AppCompatActivity() {
 
     }
 
-    private fun pushCatDataInDB(cat: CatRepo) {
+    private fun pushCatDataInDB(cat: Cat) {
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(dataBaseError: DatabaseError) {
                 Toast.makeText(this@AddActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
@@ -136,7 +137,8 @@ class AddActivity : AppCompatActivity() {
     }
 
     private fun doRoundImageView() {
-        val drawable = this@AddActivity.getDrawable(R.drawable.background_rounding) as GradientDrawable
+        val drawable =
+            this@AddActivity.getDrawable(R.drawable.background_rounding) as GradientDrawable
         catImageButton.background = drawable
         catImageButton.clipToOutline = true
     }

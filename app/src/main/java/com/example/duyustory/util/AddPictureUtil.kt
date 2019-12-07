@@ -9,7 +9,7 @@ import android.net.Uri
 import android.provider.MediaStore
 
 class AddPictureUtil {
-    fun getImageInGallery() : Intent {
+    fun getImageInGallery(): Intent {
         val galleryIntent = Intent(Intent.ACTION_PICK)
         galleryIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
 
@@ -54,7 +54,13 @@ class AddPictureUtil {
     fun getRealPathFromURI(context: Context, contentUri: Uri): String {
         var cursor: Cursor? = null
         try {
-            cursor = context.contentResolver.query(contentUri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
+            cursor = context.contentResolver.query(
+                contentUri,
+                arrayOf(MediaStore.Images.Media.DATA),
+                null,
+                null,
+                null
+            )
             val columnIndex = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
             cursor.moveToFirst()
             return cursor.getString(columnIndex)

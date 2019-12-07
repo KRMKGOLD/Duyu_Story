@@ -8,7 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.duyustory.data.CatRepo
+import com.example.duyustory.data.Cat
 import com.example.duyustory.R
 import com.example.duyustory.add.AddActivity
 import com.google.firebase.database.DataSnapshot
@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainAdapter: MainAdapter
-    private var catList = arrayListOf<CatRepo>()
+    private var catList = arrayListOf<Cat>()
     private val database = FirebaseDatabase.getInstance()
     private val usersDB = database.getReference("users")
 
@@ -47,10 +47,10 @@ class MainActivity : AppCompatActivity() {
 
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val tempCatList = arrayListOf<CatRepo>()
+                val tempCatList = arrayListOf<Cat>()
 
                 for (tempSnapshot in dataSnapshot.children) {
-                    val catData = tempSnapshot.getValue(CatRepo::class.java)
+                    val catData = tempSnapshot.getValue(Cat::class.java)
                     tempCatList.add(0, catData!!)
                 }
                 catList.clear()
