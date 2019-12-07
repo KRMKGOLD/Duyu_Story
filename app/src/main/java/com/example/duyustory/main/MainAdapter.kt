@@ -35,7 +35,7 @@ class MainAdapter(private val context: Context, private val catList: List<Cat>) 
         private val imageCatPicture = itemView.findViewById<ImageView>(R.id.recycler_catPicture)
 
         fun bind(catData: Cat) {
-            Glide.with(context).load(catData.image).into(imageCatPicture)
+            Glide.with(context).load(catData.image).thumbnail(0.5f).into(imageCatPicture)
             imageCatPicture.setOnClickListener(this)
         }
 
