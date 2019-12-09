@@ -21,8 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mainAdapter: MainAdapter
     private var catList = arrayListOf<Cat>()
-    private val database = FirebaseDatabase.getInstance()
-    private val usersDB = database.getReference("users")
+
+    private val usersDB = FirebaseDatabase.getInstance().getReference("users")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,25 +38,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        mainProgressBar.visibility = View.VISIBLE
         super.onResume()
         getDataInDB()
     }
 
     private fun getDataInDB() {
+        showProgressBar()
 
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val tempCatList = arrayListOf<Cat>()
 
-                for (tempSnapshot in dataSnapshot.children) {
-                    val catData = tempSnapshot.getValue(Cat::class.java)
-                    tempCatList.add(0, catData!!)
+                for (snapshot in dataSnapshot.children) {
+                    val catData = snapshot.getValue(Cat::class.java)
+                    catData?.let { tempCatList.add(0, it) }
                 }
+
                 catList.clear()
                 catList.addAll(tempCatList)
+                catList = tempCatList
 
-                mainProgressBar.visibility = View.GONE
                 mainAdapter.notifyDataSetChanged()
             }
 
@@ -64,6 +65,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
             }
         })
+
+        hideProgressBar()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -74,10 +77,17 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.startAddActivityMenu -> {
-                val startAddActivityIntent = Intent(this, AddActivity::class.java)
-                startActivity(startAddActivityIntent)
+                startActivity(Intent(this, AddActivity::class.java))
             }
         }
         return true
+    }
+
+    private fun showProgressBar() {
+        mainProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        mainProgressBar.visibility = View.GONE
     }
 }
