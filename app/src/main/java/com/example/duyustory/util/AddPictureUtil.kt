@@ -8,7 +8,7 @@ import android.graphics.Matrix
 import android.net.Uri
 import android.provider.MediaStore
 
-class AddPictureUtil {
+object AddPictureUtil {
     fun getImageInGallery(): Intent {
         val galleryIntent = Intent(Intent.ACTION_PICK)
         galleryIntent.type = MediaStore.Images.Media.CONTENT_TYPE

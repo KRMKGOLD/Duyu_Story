@@ -22,14 +22,14 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import kotlinx.android.synthetic.main.activity_add.*
-import java.io.ByteArrayOutputStream
 import java.util.*
 import android.view.View
-import androidx.loader.content.CursorLoader
+import androidx.core.content.ContextCompat
 import com.example.duyustory.data.Cat
 import com.example.duyustory.R
 import com.example.duyustory.util.AddPictureUtil
 import com.tedpark.tedpermission.rx2.TedRx2Permission
+import java.io.File
 import java.lang.ref.WeakReference
 
 class AddActivity : AppCompatActivity() {
@@ -39,8 +39,7 @@ class AddActivity : AppCompatActivity() {
     private val storageRef = FirebaseStorage.getInstance().reference
     private val database = FirebaseDatabase.getInstance()
     private val usersDB = database.getReference("users")
-    private var imageBitmap: Bitmap? = null
-    private val addPictureUtil = AddPictureUtil()
+    private lateinit var imageRealPath: String
 
     override fun onStart() {
         super.onStart()
@@ -55,11 +54,15 @@ class AddActivity : AppCompatActivity() {
         setSupportActionBar(addToolbar)
 
         catImageButton.setOnClickListener {
-            startActivityForResult(addPictureUtil.getImageInGallery(), GET_GALLERY_IMAGE)
+            startActivityForResult(AddPictureUtil.getImageInGallery(), GET_GALLERY_IMAGE)
         }
 
         uploadButton.setOnClickListener {
-            if (catImageButton.drawable == null) {
+            if (catImageButton.drawable == ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_image_black_24dp
+                )
+            ) {
                 Toast.makeText(this, "사진을 등록하십시오.", Toast.LENGTH_SHORT).show()
             } else {
                 addProgressBar.visibility = View.VISIBLE
@@ -94,18 +97,19 @@ class AddActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        var imageBitmap: Bitmap?
 
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
             imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
+            imageRealPath = AddPictureUtil.getRealPathFromURI(this, data.data)!!
 
-            val imagePath = data.data
-            Log.d("imagePath", imagePath.toString())
-            val exif = ExifInterface(addPictureUtil.getRealPathFromURI(this, imagePath)!!)
+            val exif = ExifInterface(imageRealPath!!)
             val exifOrientation = exif.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
             )
-            val exifDegree = addPictureUtil.exifOrientationToDegrees(exifOrientation)
-            imageBitmap = addPictureUtil.rotate(imageBitmap, exifDegree)
+            val exifDegree = AddPictureUtil.exifOrientationToDegrees(exifOrientation)
+            imageBitmap = AddPictureUtil.rotate(imageBitmap, exifDegree)
 
             catImageButton.setImageBitmap(imageBitmap)
         }
@@ -114,13 +118,7 @@ class AddActivity : AppCompatActivity() {
     private fun uploadCatImage() {
         val randomUUDI = "${UUID.randomUUID()}"
         val storageImageRef = storageRef.child("imageUrl/$randomUUDI")
-
-        val baos = ByteArrayOutputStream()
-        val catByteData = baos.toByteArray()
-        val uploadTask = storageImageRef.putBytes(catByteData)
-
-        imageBitmap?.compress(Bitmap.CompressFormat.JPEG, 25, baos)
-        val a = imageBitmap
+        val uploadTask = storageImageRef.putFile(Uri.fromFile(File(imageRealPath)))
 
         uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
             if (!it.isSuccessful) {
