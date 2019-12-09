@@ -39,12 +39,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        showProgressBar()
         getDataInDB()
-        hideProgressBar()
     }
 
     private fun getDataInDB() {
+        showProgressBar()
+
         usersDB.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val tempCatList = arrayListOf<Cat>()
@@ -54,6 +54,8 @@ class MainActivity : AppCompatActivity() {
                     catData?.let { tempCatList.add(0, it) }
                 }
 
+                catList.clear()
+                catList.addAll(tempCatList)
                 catList = tempCatList
 
                 mainAdapter.notifyDataSetChanged()
@@ -63,6 +65,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "취소되었습니다.", Toast.LENGTH_SHORT).show()
             }
         })
+
+        hideProgressBar()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

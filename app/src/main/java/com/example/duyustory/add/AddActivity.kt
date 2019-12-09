@@ -1,7 +1,6 @@
 package com.example.duyustory.add
 
-import android.Manifest.permission.CAMERA
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,6 +10,7 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.AsyncTask
 import android.provider.MediaStore
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import android.widget.Toast
 import com.google.android.gms.tasks.Continuation
@@ -29,7 +29,6 @@ import androidx.loader.content.CursorLoader
 import com.example.duyustory.data.Cat
 import com.example.duyustory.R
 import com.example.duyustory.util.AddPictureUtil
-import com.gun0912.tedpermission.TedPermissionResult
 import com.tedpark.tedpermission.rx2.TedRx2Permission
 import java.lang.ref.WeakReference
 
@@ -99,8 +98,9 @@ class AddActivity : AppCompatActivity() {
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
             imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
 
-            val imagePath: Uri? = data.data
-            val exif = ExifInterface(addPictureUtil.getRealPathFromURI(this, imagePath!!))
+            val imagePath = data.data
+            Log.d("imagePath", imagePath.toString())
+            val exif = ExifInterface(addPictureUtil.getRealPathFromURI(this, imagePath)!!)
             val exifOrientation = exif.getAttributeInt(
                 ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL
             )
@@ -109,17 +109,6 @@ class AddActivity : AppCompatActivity() {
 
             catImageButton.setImageBitmap(imageBitmap)
         }
-    }
-
-    private fun getPath(uri: Uri): String {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursorLoader = CursorLoader(this, uri, projection, null, null, null)
-        val cursor = cursorLoader.loadInBackground()
-        val index = cursor?.getColumnIndexOrThrow(projection[0])
-
-        cursor?.moveToFirst()
-
-        return index?.let { cursor.getString(it) }!!
     }
 
     private fun uploadCatImage() {
@@ -176,7 +165,7 @@ class AddActivity : AppCompatActivity() {
             .setRationaleTitle("권한 등록")
             .setRationaleMessage("사진 등록을 위한 권한 설정이 필요합니다.")
             .setDeniedMessage("사진 및 파일을 등록하기 위해서는 권한을 설정해주세요.")
-            .setPermissions(CAMERA, WRITE_EXTERNAL_STORAGE)
+            .setPermissions(CAMERA, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE)
             .request()
             .subscribe({ result ->
                 if (result.isGranted) {

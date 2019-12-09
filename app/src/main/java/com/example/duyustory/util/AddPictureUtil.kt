@@ -2,16 +2,17 @@ package com.example.duyustory.util
 
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 
 class AddPictureUtil {
     fun getImageInGallery(): Intent {
-        val galleryIntent = Intent(Intent.ACTION_PICK)
-        galleryIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+        val galleryIntent = Intent()
+        galleryIntent.type = "image/*"
+        galleryIntent.action = Intent.ACTION_GET_CONTENT
 
         return galleryIntent
     }
@@ -51,22 +52,29 @@ class AddPictureUtil {
         return rotateBitmap
     }
 
-    fun getRealPathFromURI(context: Context, contentUri: Uri): String {
-        var cursor: Cursor? = null
-        try {
-            cursor = context.contentResolver.query(
-                contentUri,
-                arrayOf(MediaStore.Images.Media.DATA),
-                null,
-                null,
-                null
-            )
-            val columnIndex = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            return cursor.getString(columnIndex)
-        } finally {
-            cursor?.close()
+    fun getRealPathFromURI(context: Context, contentUri: Uri): String? {
+        if (contentUri.path.startsWith("/storage")) {
+            return contentUri.path
         }
+        val id = DocumentsContract.getDocumentId(contentUri).split(":")[1]
+        val columns = arrayOf(MediaStore.Files.FileColumns.DATA)
+        val selection = "${MediaStore.Files.FileColumns._ID} = $id"
+        val cursor = context.contentResolver.query(
+            MediaStore.Files.getContentUri("external"),
+            columns,
+            selection,
+            null,
+            null
+        )
+
+        try {
+            if (cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndex(columns[0]) )
+            }
+        } finally {
+            cursor.close()
+        }
+        return null
     }
 
 }

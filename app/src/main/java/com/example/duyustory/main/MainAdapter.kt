@@ -35,7 +35,7 @@ class MainAdapter(private val context: Context, private val catList: List<Cat>) 
         private val imageCatPicture = itemView.findViewById<ImageView>(R.id.recycler_catPicture)
 
         fun bind(catData: Cat) {
-            Glide.with(context).load(catData.image).thumbnail(0.5f).into(imageCatPicture)
+            Glide.with(context).load(catData.imageUrl).thumbnail(0.5f).into(imageCatPicture)
             imageCatPicture.setOnClickListener(this)
         }
 
@@ -43,10 +43,7 @@ class MainAdapter(private val context: Context, private val catList: List<Cat>) 
             when (v?.id) {
                 R.id.recycler_catPicture -> {
                     val startPictureActivityIntent = Intent(context, PictureActivity::class.java)
-                    startPictureActivityIntent.putExtra(
-                        "Picture_URL",
-                        catList[adapterPosition].image
-                    )
+                    startPictureActivityIntent.putExtra("Picture_URL",catList[adapterPosition].imageUrl)
 
                     context.startActivity(startPictureActivityIntent)
                 }
