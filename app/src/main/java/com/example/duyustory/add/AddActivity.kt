@@ -165,15 +165,13 @@ class AddActivity : AppCompatActivity() {
             .setDeniedMessage("사진 및 파일을 등록하기 위해서는 권한을 설정해주세요.")
             .setPermissions(CAMERA, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE)
             .request()
-            .subscribe({ result ->
+            .subscribe { result ->
                 if (result.isGranted) {
                     Toast.makeText(this, "권한 승인에 성공했습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "권한 승인에 실패했습니다.", Toast.LENGTH_SHORT).show()
                     finish()
                 }
-            })
-
-
+            }
     }
 }

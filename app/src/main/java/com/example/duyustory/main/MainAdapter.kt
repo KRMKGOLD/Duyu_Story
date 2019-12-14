@@ -12,7 +12,7 @@ import com.example.duyustory.data.Cat
 import com.example.duyustory.picture.PictureActivity
 import com.example.duyustory.R
 
-class MainAdapter(private val context: Context, private val catList: List<Cat>) :
+class MainAdapter(private val context: Context, private var catList: List<Cat>) :
     RecyclerView.Adapter<MainAdapter.MainViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
         return MainViewHolder(
@@ -28,6 +28,11 @@ class MainAdapter(private val context: Context, private val catList: List<Cat>) 
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
         holder.bind(catList[position])
+    }
+
+    fun setListData(catList : List<Cat>) {
+        this.catList = catList
+        notifyDataSetChanged()
     }
 
     inner class MainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),

@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mainAdapter: MainAdapter
     private var catList = arrayListOf<Cat>()
-
     private val usersDB = FirebaseDatabase.getInstance().getReference("users")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,11 +53,7 @@ class MainActivity : AppCompatActivity() {
                     catData?.let { tempCatList.add(0, it) }
                 }
 
-                catList.clear()
-                catList.addAll(tempCatList)
-                catList = tempCatList
-
-                mainAdapter.notifyDataSetChanged()
+                mainAdapter.setListData(tempCatList)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -66,6 +61,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        mainAdapter.notifyDataSetChanged()
         hideProgressBar()
     }
 
