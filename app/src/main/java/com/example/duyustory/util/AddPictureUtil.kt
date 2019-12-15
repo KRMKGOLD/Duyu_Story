@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.exifinterface.media.ExifInterface
 
 object AddPictureUtil {
     fun getImageInGallery(): Intent {
@@ -18,9 +19,9 @@ object AddPictureUtil {
 
     fun exifOrientationToDegrees(exifOrientation: Int): Int {
         return when (exifOrientation) {
-            androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> 90
-            androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> 270
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270
             else -> 0
         }
     }
@@ -52,10 +53,16 @@ object AddPictureUtil {
     }
 
     fun getRealPathFromURI(context: Context, contentUri: Uri): String? {
-        var cursor : Cursor? = null
+        var cursor: Cursor? = null
         try {
-            cursor = context.contentResolver.query(contentUri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
-            val columnIndex = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            cursor = context.contentResolver.query(
+                contentUri,
+                arrayOf(MediaStore.Images.Media.DATA),
+                null,
+                null,
+                null
+            )
+            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
             cursor.moveToFirst()
             return cursor.getString(columnIndex)
         } finally {
