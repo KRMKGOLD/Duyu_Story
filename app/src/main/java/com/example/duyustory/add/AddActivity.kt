@@ -39,7 +39,7 @@ class AddActivity : AppCompatActivity() {
     private val storageRef = FirebaseStorage.getInstance().reference
     private val database = FirebaseDatabase.getInstance()
     private val usersDB = database.getReference("users")
-    private lateinit var imageRealPath: String
+    private var imageRealPath : String? = ""
 
     override fun onStart() {
         super.onStart()
@@ -101,7 +101,7 @@ class AddActivity : AppCompatActivity() {
 
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
             imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
-            imageRealPath = AddPictureUtil.getRealPathFromURI(this, data.data)!!
+            imageRealPath = AddPictureUtil.getRealPathFromURI(this, data.data!!)
 
             val exif = ExifInterface(imageRealPath!!)
             val exifOrientation = exif.getAttributeInt(
