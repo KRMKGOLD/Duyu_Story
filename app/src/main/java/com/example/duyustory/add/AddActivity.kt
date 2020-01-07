@@ -96,9 +96,9 @@ class AddActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
-            var imageBitmap = AddPictureUtil.getBitmap(this, data.data!!)
-            imageRealPath = AddPictureUtil.getRealPathFromURI(this, data.data!!)
-
+            val uriData = data.data
+            var imageBitmap = uriData?.let { AddPictureUtil.getBitmap(this, it) }
+            imageRealPath = uriData?.let { AddPictureUtil.getRealPathFromURI(this, it) }
             val exif = ExifInterface(imageRealPath!!)
             val exifOrientation = exif.getAttributeInt(
                 ExifInterface.TAG_ORIENTATION,

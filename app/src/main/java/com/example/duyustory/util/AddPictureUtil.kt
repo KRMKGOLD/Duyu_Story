@@ -2,7 +2,6 @@ package com.example.duyustory.util
 
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -46,8 +45,7 @@ object AddPictureUtil {
                     rotateBitmap.recycle()
                     rotateBitmap = converted
                 }
-            } catch (ex: OutOfMemoryError) {
-
+            } catch (e: OutOfMemoryError) {
             }
         }
         return rotateBitmap
@@ -60,24 +58,8 @@ object AddPictureUtil {
         return BitmapFactory.decodeFileDescriptor(fileDescriptor)
     }
 
-    fun getRealPathFromURI(context: Context, contentUri: Uri): String? {
-        val cursor: Cursor? = context.contentResolver.query(
-            contentUri,
-            arrayOf(MediaStore.Images.Media.DATA),
-            null,
-            null,
-            null
-        )
-
-        val data = ""
-
-        cursor?.let {
-            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            cursor.getString(columnIndex)
-            cursor.close()
-        }
-        return data
+    fun getRealPathFromURI(context: Context, contentUri: Uri): String {
+        // TODO : 가장 급함, Real Path를 받아 올 수 있되 Depracated된 DATA 부분을 해결할 수 있는지 확인해봐야 한다.
     }
 
 }
