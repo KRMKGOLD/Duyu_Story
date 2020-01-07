@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.provider.MediaStore
@@ -50,6 +51,13 @@ object AddPictureUtil {
             }
         }
         return rotateBitmap
+    }
+
+    fun getBitmap(context: Context, contentUri: Uri): Bitmap {
+        val fileDescriptor =
+            context.contentResolver.openFileDescriptor(contentUri, "r")?.fileDescriptor
+
+        return BitmapFactory.decodeFileDescriptor(fileDescriptor)
     }
 
     fun getRealPathFromURI(context: Context, contentUri: Uri): String? {

@@ -3,16 +3,18 @@ package com.example.duyustory.add
 import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.AsyncTask
-import android.provider.MediaStore
-import android.util.Log
-import androidx.exifinterface.media.ExifInterface
+import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
+import com.example.duyustory.R
+import com.example.duyustory.data.Cat
+import com.example.duyustory.util.AddPictureUtil
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
@@ -21,16 +23,11 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
-import kotlinx.android.synthetic.main.activity_add.*
-import java.util.*
-import android.view.View
-import androidx.core.content.ContextCompat
-import com.example.duyustory.data.Cat
-import com.example.duyustory.R
-import com.example.duyustory.util.AddPictureUtil
 import com.tedpark.tedpermission.rx2.TedRx2Permission
+import kotlinx.android.synthetic.main.activity_add.*
 import java.io.File
 import java.lang.ref.WeakReference
+import java.util.*
 
 class AddActivity : AppCompatActivity() {
 
@@ -39,7 +36,7 @@ class AddActivity : AppCompatActivity() {
     private val storageRef = FirebaseStorage.getInstance().reference
     private val database = FirebaseDatabase.getInstance()
     private val usersDB = database.getReference("users")
-    private var imageRealPath : String? = ""
+    private var imageRealPath: String? = ""
 
     override fun onStart() {
         super.onStart()
@@ -67,11 +64,12 @@ class AddActivity : AppCompatActivity() {
             } else {
                 addProgressBar.visibility = View.VISIBLE
 
-                DataSaveAsyncTask(this@AddActivity).execute()
+                DataSaveAsyncTask(this).execute()
             }
         }
     }
 
+    /** @deprecated */
     inner class DataSaveAsyncTask(private val context: AddActivity) :
         AsyncTask<Unit, Unit, Unit>() {
         private lateinit var weakReference: WeakReference<AddActivity>
@@ -97,10 +95,8 @@ class AddActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        var imageBitmap: Bitmap?
-
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
-            imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
+            var imageBitmap = AddPictureUtil.getBitmap(this, data.data!!)
             imageRealPath = AddPictureUtil.getRealPathFromURI(this, data.data!!)
 
             val exif = ExifInterface(imageRealPath!!)
@@ -109,7 +105,7 @@ class AddActivity : AppCompatActivity() {
                 ExifInterface.ORIENTATION_NORMAL
             )
             val exifDegree = AddPictureUtil.exifOrientationToDegrees(exifOrientation)
-            imageBitmap = AddPictureUtil.rotate(imageBitmap, exifDegree)
+            imageBitmap = AddPictureUtil.rotate(imageBitmap, exifDegree)!!
 
             catImageButton.setImageBitmap(imageBitmap)
         }
